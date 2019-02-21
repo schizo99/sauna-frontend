@@ -27,7 +27,6 @@ export class TempComponent implements OnInit {
   getOneTemp() {
     this.temp = [];
     this.rest.getOneTemp().subscribe((data: {}) => {
-      console.log(data);
       this.temp = data;
     });
   }

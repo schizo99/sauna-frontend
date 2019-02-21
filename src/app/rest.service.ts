@@ -26,7 +26,8 @@ export class RestService {
 
   getOneTemp(): Observable<any> {
     return this.http.get(endpoint + 'temp').pipe(
-      map(this.extractData));
+      map(this.extractData),
+      catchError(this.serverError()));
   }
   
   getTemp(id): Observable<any> {
@@ -40,6 +41,9 @@ export class RestService {
       tap((product) => console.log(`added product w/ id=${product.id}`)),
       catchError(this.handleError<any>('addTemp'))
     );
+  }
+  private serverError<T> (operation = 'operation', result?: T) {
+      return Observable => { return of({temp: "N/A"});}
   }
   private handleError<T> (operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {

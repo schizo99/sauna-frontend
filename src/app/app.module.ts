@@ -7,12 +7,12 @@ import { TempComponent } from './temp/temp.component';
 
 const appRoutes: Routes = [
   {
-    path: 'temp',
+    path: '',
     component: TempComponent,
     data: { title: 'Temp' }
   },
-  { path: '',
-    redirectTo: '/temp',
+  { path: '**',
+    redirectTo: '',
     pathMatch: 'full'
   }
 ];
