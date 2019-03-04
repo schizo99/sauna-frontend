@@ -1,5 +1,4 @@
-<h2>Current temperature:</h2>
+<h2>Current temperature: {{ temp.temp }}</h2>
 
-    <h1>{{ temp.temp }}</h1>
 
-last update: {{ temp.date }}
+last update: {{ temp.date | date:'medium':'CET' }}
