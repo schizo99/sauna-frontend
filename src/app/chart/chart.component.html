@@ -1,3 +1,14 @@
-<p>
-  chart works!
-</p>
+<div class="row">
+    <div class="col-md-8">
+      <div style="display: block;">
+      <canvas baseChart *ngIf="showMyChart" width="600" height="400"
+                  [datasets]="lineChartData"
+                  [labels]="lineChartLabels"
+                  [options]="lineChartOptions"
+                  [colors]="lineChartColors"
+                  [legend]="lineChartLegend"
+                  [chartType]="lineChartType"></canvas>
+      </div>
+    </div>
+    <div class="col-md-2">Top Temperature: {{maxValue}}</div>
+  </div>
