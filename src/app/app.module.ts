@@ -5,12 +5,18 @@ import { RouterModule, Routes } from '@angular/router';
 import { AppComponent } from './app.component';
 import { TempComponent } from './temp/temp.component';
 import { ChartComponent } from './chart/chart.component';
+import { ChartsModule } from 'ng2-charts';
 
 const appRoutes: Routes = [
   {
     path: '',
     component: TempComponent,
     data: { title: 'Temp' }
+  },
+  {
+    path: 'chart',
+    component: ChartComponent,
+    data: { title: 'Chart' }
   },
   { path: '**',
     redirectTo: '',
@@ -25,6 +31,7 @@ const appRoutes: Routes = [
     ChartComponent
   ],
   imports: [
+    ChartsModule,
     BrowserModule,
     HttpClientModule,
     RouterModule.forRoot(appRoutes)
