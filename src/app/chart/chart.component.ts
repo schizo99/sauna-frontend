@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, SimpleChanges, Input } from '@angular/core';
 import { RestService } from '../rest.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { interval } from 'rxjs';
+import { takeWhile } from 'rxjs/operators';
 import * as moment from 'moment';
 
 @Component({
@@ -36,27 +38,37 @@ export class ChartComponent implements OnInit {
   public lineChartType = 'line';
   public showMyChart:boolean = false;
   public maxValue:any = ""
+  private alive: boolean;
   temps:any = [];
   labels:any = [];
-  constructor(public rest:RestService, private route: ActivatedRoute, private router: Router) {}
- 
+  public days:any = 7;
+  constructor(public rest:RestService, private route: ActivatedRoute, private router: Router) { this.alive = true; }
+
   ngOnInit() {
-    this.getByDays(7);
+    this.getByDays();
+    interval(10000).pipe( takeWhile(() => this.alive))
+      .subscribe(() => {
+        this.getByDays();
+      });
   }
-  getByDays(days) {
+  ngOnDestroy(){
+    this.alive = false; // switches your IntervalObservable off
+  }  
+  public getByDays() {
     this.temps = [];
-    this.rest.getByDays(days).subscribe((data: {}) => {
+    let tempChartLabels = [];
+    this.rest.getByDays(this.days).subscribe((data: {}) => {
       this.temps = data;
       this.temps = this.temps.filter((o, i) => !i || o.temp < 150  && (this.temps[i-1].temp - o.temp < 10))
-      this.lineChartLabels = this.temps.map(o => (moment(o.date).format("YYYY-MM-DD HH:mm")));
+      tempChartLabels = this.temps.map(o => (moment(o.date).format("YYYY-MM-DD HH:mm")));
       this.lineChartData = [{data: this.temps.map(o => (~~o.temp)), label: "Test"}];
+      this.lineChartLabels.length = 0;
+      this.lineChartLabels.push(...tempChartLabels);
       this.maxValue = Math.max(...this.lineChartData[0].data);
       this.showMyChart = true;
-      console.log(this.maxValue);
+
     });
   }
-
-
 
   public randomize(): void {
     const lineChartData: any[] = new Array(this.lineChartData.length);

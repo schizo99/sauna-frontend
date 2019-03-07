@@ -1,4 +1,19 @@
 <div class="row">
+  <div class="col-mb-8">
+    <mat-slider
+      thumbLabel
+      tickInterval="1"
+      min="1"
+      max="365"
+      (change)="getByDays()"
+      value="7"
+      [(ngModel)]="days"
+      style="margin-left: 2.5em;"></mat-slider>
+  </div>
+  <div><p style="margin-top: 10px;">Showing {{days}} days of history</p></div>
+</div>
+
+<div class="row">
     <div class="col-md-8">
       <div style="display: block;">
       <canvas baseChart *ngIf="showMyChart" width="600" height="400"
@@ -10,5 +25,8 @@
                   [chartType]="lineChartType"></canvas>
       </div>
     </div>
-    <div class="col-md-2">Top Temperature: {{maxValue}}</div>
+    <div class="col-md-4">
+      <h2>Max Temp: {{maxValue}}</h2>
+      <app-temp></app-temp>
+    </div>
   </div>

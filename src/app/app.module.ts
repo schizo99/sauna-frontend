@@ -6,6 +6,10 @@ import { AppComponent } from './app.component';
 import { TempComponent } from './temp/temp.component';
 import { ChartComponent } from './chart/chart.component';
 import { ChartsModule } from 'ng2-charts';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatSliderModule} from '@angular/material/slider';
+import { FormsModule } from '@angular/forms';
 
 const appRoutes: Routes = [
   {
@@ -32,8 +36,12 @@ const appRoutes: Routes = [
   ],
   imports: [
     ChartsModule,
+    BrowserAnimationsModule,
     BrowserModule,
     HttpClientModule,
+    MatSliderModule,
+    MatToolbarModule,
+    FormsModule,
     RouterModule.forRoot(appRoutes)
   ],
   providers: [],
