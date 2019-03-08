@@ -16,6 +16,24 @@ export class ChartComponent implements OnInit {
   public lineChartLabels: any[] = [];
   public lineChartOptions: any = {
     responsive: true,
+    scales: {
+      xAxes: [{
+          type: 'time',
+          distribution: 'series',
+          ticks: {
+            source: 'data',
+            autoSkip: true,
+            autoSkipPadding: 30,
+          },
+          time: {
+              unit: 'hour',
+              displayFormats: {
+                hour: 'MMM D HH:mm'
+            }
+          },
+      }],
+      
+    },
     elements: { 
       point: { 
         radius: 0,
@@ -60,25 +78,13 @@ export class ChartComponent implements OnInit {
     this.rest.getByDays(this.days).subscribe((data: {}) => {
       this.temps = data;
       this.temps = this.temps.filter((o, i) => !i || o.temp < 150  && (this.temps[i-1].temp - o.temp < 10))
+      this.temps = this.temps.filter((o, i) => !i || (moment(this.temps[i-1].date).format("YYYY-MM-DD HH:mm") != moment(o.date).format("YYYY-MM-DD HH:mm")));
       tempChartLabels = this.temps.map(o => (moment(o.date).format("YYYY-MM-DD HH:mm")));
       this.lineChartData = [{data: this.temps.map(o => (~~o.temp)), label: "Test"}];
       this.lineChartLabels.length = 0;
       this.lineChartLabels.push(...tempChartLabels);
       this.maxValue = Math.max(...this.lineChartData[0].data);
       this.showMyChart = true;
-
     });
   }
-
-  public randomize(): void {
-    const lineChartData: any[] = new Array(this.lineChartData.length);
-    for (let i = 0; i < this.lineChartData.length; i++) {
-      lineChartData[i] = { data: new Array(this.lineChartData[i].data.length), label: this.lineChartData[i].label };
-      for (let j = 0; j < this.lineChartData[i].data.length; j++) {
-        lineChartData[i].data[j] = Math.floor((Math.random() * 100) + 1);
-      }
-    }
-    this.lineChartData = lineChartData;
-  }
-
 }
