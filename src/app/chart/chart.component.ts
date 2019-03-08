@@ -21,7 +21,7 @@ export class ChartComponent implements OnInit {
           type: 'time',
           distribution: 'series',
           ticks: {
-            source: 'data',
+            source: 'labels',
             autoSkip: true,
             autoSkipPadding: 30,
           },
