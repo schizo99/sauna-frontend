@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { RestService } from '../rest.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { interval } from 'rxjs';
-import { takeWhile } from 'rxjs/operators';
+import { of, fromEvent } from 'rxjs';
+import { takeWhile, mergeMap, delay, repeatWhen, skipWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'app-temp',
@@ -17,33 +17,20 @@ export class TempComponent implements OnInit {
   constructor(public rest:RestService, private route: ActivatedRoute, private router: Router) { this.alive = true; }
 
   ngOnInit() {
-    this.getOneTemp();
-    interval(10000).pipe( takeWhile(() => this.alive))
-      .subscribe(() => {
-        this.getOneTemp();
-      });
+    this.rest.getOneTemp().subscribe(data => this.temp = data)
+    this.poll.subscribe(data => this.temp = data)
+    
+    fromEvent(window, 'focus').subscribe(test => this.alive = true)
+    fromEvent(window, 'blur').subscribe(test => this.alive = false)
   }
+  
+  poll = of({}).pipe(
+    takeWhile(() => this.alive),
+    mergeMap(_ => this.rest.getOneTemp()),
+    delay(5000),
+    repeatWhen(complete => complete)
+  );
 
-  getOneTemp() {
-    this.temp = [];
-    this.rest.getOneTemp().subscribe((data: {}) => {
-      this.temp = data;
-    });
-  }
-
-  /* add() {
-    this.router.navigate(['/product-add']);
-  }
-
-  delete(id) {
-    this.rest.deleteProduct(id)
-      .subscribe(res => {
-          this.getProducts();
-        }, (err) => {
-          console.log(err);
-        }
-      );
-  } */
   ngOnDestroy(){
     this.alive = false; // switches your IntervalObservable off
   }

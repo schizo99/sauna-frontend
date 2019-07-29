@@ -1,9 +1,10 @@
 import { Component, OnInit, SimpleChanges, Input } from '@angular/core';
 import { RestService } from '../rest.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { interval } from 'rxjs';
-import { takeWhile } from 'rxjs/operators';
+import { interval, of, fromEvent } from 'rxjs';
+import { takeWhile, mergeMap, repeatWhen, delay } from 'rxjs/operators';
 import * as moment from 'moment';
+
 
 @Component({
   selector: 'app-chart',
@@ -63,28 +64,35 @@ export class ChartComponent implements OnInit {
   constructor(public rest:RestService, private route: ActivatedRoute, private router: Router) { this.alive = true; }
 
   ngOnInit() {
-    this.getByDays();
-    interval(10000).pipe( takeWhile(() => this.alive))
-      .subscribe(() => {
-        this.getByDays();
-      });
+    this.getByDays()
+    this.poll.subscribe(data => this.updateChart(data));
+    fromEvent(window, 'focus').subscribe(test => this.alive = true)
+    fromEvent(window, 'blur').subscribe(test => this.alive = false)
   }
   ngOnDestroy(){
     this.alive = false; // switches your IntervalObservable off
-  }  
-  public getByDays() {
+  }
+  poll = of({}).pipe(
+    delay(5000),
+    takeWhile(() => this.alive),
+    mergeMap(_ => this.rest.getByDays(this.days)),
+    repeatWhen(complete => complete)
+  );
+
+  getByDays(){
+    this.rest.getByDays(this.days).subscribe(data => this.updateChart(data))
+  }
+  updateChart(data){
     this.temps = [];
     let tempChartLabels = [];
-    this.rest.getByDays(this.days).subscribe((data: {}) => {
-      this.temps = data;
-      this.temps = this.temps.filter((o, i) => !i || o.temp < 150  && (this.temps[i-1].temp - o.temp < 10))
-      this.temps = this.temps.filter((o, i) => !i || (moment(this.temps[i-1].date).format("YYYY-MM-DD HH:mm") != moment(o.date).format("YYYY-MM-DD HH:mm")));
-      tempChartLabels = this.temps.map(o => (moment(o.date).format("YYYY-MM-DD HH:mm")));
-      this.lineChartData = [{data: this.temps.map(o => (~~o.temp)), label: "Test"}];
-      this.lineChartLabels.length = 0;
-      this.lineChartLabels.push(...tempChartLabels);
-      this.maxValue = Math.max(...this.lineChartData[0].data);
-      this.showMyChart = true;
-    });
+    this.temps = data;
+    this.temps = this.temps.filter((o, i) => !i || o.temp < 150  && (this.temps[i-1].temp - o.temp < 10))
+    this.temps = this.temps.filter((o, i) => !i || (moment(this.temps[i-1].date).format("YYYY-MM-DD HH:mm") != moment(o.date).format("YYYY-MM-DD HH:mm")));
+    tempChartLabels = this.temps.map(o => (moment(o.date).format("YYYY-MM-DD HH:mm")));
+    this.lineChartData = [{data: this.temps.map(o => (~~o.temp)), label: "Test"}];
+    this.lineChartLabels.length = 0;
+    this.lineChartLabels.push(...tempChartLabels);
+    this.maxValue = Math.max(...this.lineChartData[0].data);
+    this.showMyChart = true;
   }
 }
